@@ -1,5 +1,6 @@
 import argparse
 import time
+import requests
 from pathlib import Path
 
 import cv2
@@ -20,6 +21,7 @@ def detect(save_img=False):
     save_img = not opt.nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
+    server_output = opt.server_output
 
     # Directories
     save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
@@ -135,6 +137,14 @@ def detect(save_img=False):
             if view_img:
                 cv2.imshow(str(p), im0)
                 cv2.waitKey(1)  # 1 millisecond
+            # Stream to server
+            if server_output != '':
+                files = {'image': im0}
+                response = requests.post(server_output, files=files)
+
+                # Check the response from the server
+                if response.status_code != 200:
+                    print(f'Failed to upload the image. Status code: {response.status_code}')
 
             # Save results (image with detections)
             if save_img:
@@ -183,6 +193,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--no-trace', action='store_true', help='don`t trace model')
+    parser.add_argument('--server-output', type=str, default='', help='source')
     opt = parser.parse_args()
     print(opt)
     #check_requirements(exclude=('pycocotools', 'thop'))

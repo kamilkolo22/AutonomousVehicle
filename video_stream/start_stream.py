@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import cv2
 import carla
 import numpy as np
@@ -48,12 +48,6 @@ def carla_start_out_img():
     camera.stop()
 
 
-def assign_img(img):
-    global img_storage
-    img_storage = img
-    print("Img updated")
-
-
 app.config["CACHE_TYPE"] = "null"
 
 
@@ -68,6 +62,17 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(carla_start_out_img(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/video_output', methods=['POST'])
+def upload_file():
+    # Check if the 'image' file is in the request
+    if 'image' in request.files:
+        uploaded_file = request.files['image']
+        # Read the content of the uploaded file
+        file_content = uploaded_file.read()
+        # Display the content of the uploaded file
+        return 'File Content: {file_content.decode()}'
+    else:
+        return 'No file uploaded'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',
