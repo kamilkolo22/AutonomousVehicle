@@ -5,9 +5,10 @@ Webcam demo application
 Implementation adapted from https://github.com/vita-epfl/openpifpaf/blob/master/openpifpaf/webcam.py
 
 """
-
+import os
 import time
 import logging
+import json
 
 import torch
 import matplotlib.pyplot as plt
@@ -141,7 +142,13 @@ def webcam(args):
             visualizer_mono.send(None)
 
         LOG.debug(dic_out)
-        visualizer_mono.send((pil_image, dic_out, pifpaf_outs))
+        with open(os.getcwd() + "/" + args.output_directory + "/json_dump.json", "a") as f:
+            dic_out['timestamp'] = time.time()
+            json.dump(dic_out, f)
+            f.write("\n")
+
+        # TODO fix bug "axes[0].patches = [] AttributeError: can't set attribute"
+        # visualizer_mono.send((pil_image, dic_out, pifpaf_outs))
 
         end = time.time()
         LOG.info("run-time: {:.2f} ms".format((end-start)*1000))
