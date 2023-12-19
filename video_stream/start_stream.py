@@ -2,6 +2,7 @@ from flask import Flask, render_template, Response, request
 import cv2
 import carla
 import numpy as np
+import argparse
 
 app = Flask(__name__)
 img_storage = None
@@ -45,7 +46,18 @@ def carla_start_out_img():
         frame = jpeg.tobytes()
         yield b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
 
-    camera.stop()
+
+def start_video_out_img():
+    """Function to stream video from a mp4 file"""
+    camera = cv2.VideoCapture(args.video_path)
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
 
 
 app.config["CACHE_TYPE"] = "null"
@@ -60,7 +72,11 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(carla_start_out_img(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    if args.video_path is None:
+        return Response(carla_start_out_img(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    else:
+        return Response(start_video_out_img(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route('/video_output', methods=['POST'])
 def upload_file():
@@ -70,13 +86,21 @@ def upload_file():
         # Read the content of the uploaded file
         file_content = uploaded_file.read()
         # Display the content of the uploaded file
-        return 'File Content: {file_content.decode()}'
+        return f'File Content: {file_content.decode()}'
     else:
         return 'No file uploaded'
 
+
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, default=5000, help='video stream port')
+    parser.add_argument('--host', type=str, default='0.0.0.0', help='video stream host')
+    parser.add_argument('--video-path', type=str, help='path to video to stream')
+    args = parser.parse_args()
+    print(args)
+
     app.run(host='0.0.0.0',
-            port=5000,
+            port=args.port,
             debug=True,
             # threaded=True
             )
