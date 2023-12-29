@@ -1,8 +1,13 @@
+import os
 from flask import Flask, render_template, Response, request
 import cv2
 import carla
 import numpy as np
 import argparse
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 app = Flask(__name__)
 img_storage = None
@@ -66,7 +71,7 @@ app.config["CACHE_TYPE"] = "null"
 @app.route('/')
 def index():
     """Video streaming home page."""
-    return render_template('templates/index.html')
+    return render_template('/index.html')
 
 
 @app.route('/video_feed')
