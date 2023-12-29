@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, Response, request
+from find_camera import find_camera
 import cv2
 import carla
 import numpy as np
@@ -23,22 +24,7 @@ def rgb_callback(image, data_dict):
 def carla_start_out_img():
     """Video streaming generator function."""
 
-    # Get world
-    client = carla.Client('localhost', 2000)
-    world = client.get_world()
-    world.tick()
-
-    # Find camera
-    actors = world.get_actors()
-    camera = None
-
-    for a in actors:
-        if a.type_id == "sensor.camera.rgb":
-            camera = a
-            break
-
-    if camera is None:
-        raise Exception("No camera detected!")
+    camera = find_camera()
 
     image_w = int(camera.attributes["image_size_x"])
     image_h = int(camera.attributes["image_size_y"])
