@@ -4,19 +4,25 @@
 display_help() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
-    echo "  --manual         Run with manual steering of the car"
-    echo "  --rviz           Run with RViz graphical interface"
-    echo "  --help           Display this help message"
+    echo "  --spawn-vehicles     Spawn ego vehicle and traffic"
+    echo "  --autopilot          Start autopilot on spawned vehicles"
+    echo "  --manual             Run with manual steering of the car"
+    echo "  --rviz               Run with RViz graphical interface"
+    echo "  --help               Display this help message"
 }
 
 # Default parameter
 include_manual=false
 include_rviz=false
+spawn_vehicles=false
+autopilot=false
 
 # Process command-line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --manual) include_manual=true;;
+        --spawn-vehicles) spawn_vehicles=true;;
+        --autopilot) autopilot=true;;
         --rviz) include_rviz=true;;
         --help) display_help; exit 0;;
         *) echo "Unknown parameter: $1"; exit 1;;
@@ -95,4 +101,16 @@ if [ "$include_rviz" = true ]; then
     echo "Rviz graphical interface cannot be displayed, no ego_vehicle detected!"
   fi
 
+fi
+
+############################################################
+# Spawn vehicles and run autopilot                         #
+############################################################
+
+if [ "$spawn_vehicles" = true ]; then
+  python3 spawn_vehicles.py
+fi
+
+if [ "$autopilot" = true ]; then
+  gnome-terminal --tab -- python3 autopilot.py
 fi

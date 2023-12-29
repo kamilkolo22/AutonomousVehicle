@@ -5,6 +5,7 @@ import carla
 import numpy as np
 import argparse
 
+# Set file directory as working directory
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)

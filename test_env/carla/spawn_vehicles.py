@@ -1,8 +1,5 @@
 import carla
 import random
-import os
-
-os.system("bash start_carla.sh")
 
 client = carla.Client('localhost', 2000) 
 world = client.get_world() 
@@ -10,6 +7,7 @@ world = client.get_world()
 # Sync mode
 settings = world.get_settings()
 settings.synchronous_mode = True  # Enables synchronous mode
+settings.fixed_delta_seconds = 0.05
 world.apply_settings(settings)
 
 # Get the blueprint library and the spawn points for the map
@@ -30,11 +28,6 @@ spectator.set_transform(transform)
 for i in range(30): 
     vehicle_bp = random.choice(bp_lib.filter('vehicle')) 
     npc = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
+    world.tick()
 
-# TODO
-# Set the all vehicles in motion using the Traffic Manager
-#for i in range(1, 10):
-#    world.tick()
-#    for v in world.get_actors().filter('*vehicle*'): 
-#        v.set_autopilot(True)
-  
+print("Vehicles spawned")
