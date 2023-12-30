@@ -1,3 +1,4 @@
+import time
 import cv2
 import glob
 import shutil
@@ -8,12 +9,12 @@ camera = find_camera()
 
 camera.listen(lambda image: image.save_to_disk('../test_videos/temp_images/%06d.jpg' % image.frame))
 
-print("Recording started!")
+print("Recording started, press ctr+C to stop recording...")
 
 # Record data until key interrupt
 try:
     while True:
-        pass
+        time.sleep(0.1)
 except KeyboardInterrupt:
     camera.stop()
     print("KeyboardInterrupt: Recording stopped!")
@@ -29,4 +30,5 @@ for filename in glob.glob('../test_videos/temp_images/*.jpg'):
 out.release()
 
 shutil.rmtree('../test_videos/temp_images')
-print("Record saved, temporary images deleted")
+print("Record saved, temporary images deleted.")
+time.sleep(2)

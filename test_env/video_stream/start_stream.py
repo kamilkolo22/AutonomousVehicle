@@ -2,7 +2,6 @@ import os
 from flask import Flask, render_template, Response, request
 from find_camera import find_camera
 import cv2
-import carla
 import numpy as np
 import argparse
 

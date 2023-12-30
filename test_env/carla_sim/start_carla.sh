@@ -6,6 +6,7 @@ display_help() {
     echo "Options:"
     echo "  --spawn-vehicles     Spawn ego vehicle and traffic"
     echo "  --autopilot          Start autopilot on spawned vehicles"
+    echo "  --pedestrians        Spawn and start AI control pedestrians"
     echo "  --record             Start recording and saving from rgb camera"
     echo "  --manual             Run with manual steering of the car"
     echo "  --rviz               Run with RViz graphical interface"
@@ -18,6 +19,7 @@ include_rviz=false
 spawn_vehicles=false
 autopilot=false
 record=false
+pedestrians=false
 
 # Process command-line arguments
 while [[ "$#" -gt 0 ]]; do
@@ -25,6 +27,7 @@ while [[ "$#" -gt 0 ]]; do
         --manual) include_manual=true;;
         --spawn-vehicles) spawn_vehicles=true;;
         --autopilot) autopilot=true;;
+        --pedestrians) pedestrians=true;;
         --record) record=true;;
         --rviz) include_rviz=true;;
         --help) display_help; exit 0;;
@@ -61,7 +64,8 @@ gnome-terminal --tab -- roslaunch carla_ros_bridge carla_ros_bridge.launch town:
 # objects
 sleep 1
 source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
-gnome-terminal --tab -- roslaunch carla_spawn_objects carla_spawn_objects.launch objects_definition_file:="$(pwd)/car_spawn.json"
+gnome-terminal --tab -- roslaunch carla_spawn_objects carla_spawn_objects.launch \
+  objects_definition_file:="$(pwd)/settings/car_spawn.json"
 
 # Check if ego_vehicle exists
 output_car=$(python3 toolbox/check_car_exists.py)
@@ -99,7 +103,7 @@ fi
 if [ "$include_rviz" = true ]; then
 
   if [ "$is_car_spawned" = true ]; then
-    gnome-terminal --tab -- rosrun rviz rviz -d "$(pwd)/visual_settings.rviz"
+    gnome-terminal --tab -- rosrun rviz rviz -d "$(pwd)/settings/visual_settings.rviz"
   else
     echo "Rviz graphical interface cannot be displayed, no ego_vehicle detected!"
   fi
@@ -116,6 +120,14 @@ fi
 
 if [ "$autopilot" = true ]; then
   gnome-terminal --tab -- python3 autopilot.py
+fi
+
+############################################################
+# Spawn pedestrians and run AI controller                  #
+############################################################
+
+if [ "$pedestrians" = true ]; then
+  gnome-terminal --tab -- python3 pedestrians.py
 fi
 
 ############################################################

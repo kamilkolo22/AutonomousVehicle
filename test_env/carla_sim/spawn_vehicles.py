@@ -1,7 +1,7 @@
 import carla
 import random
 
-v_num = 50
+v_num = 100
 client = carla.Client('localhost', 2000) 
 world = client.get_world() 
 
