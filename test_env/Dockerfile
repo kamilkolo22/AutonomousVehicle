@@ -3,6 +3,7 @@ LABEL authors="Kamil Kołodziejski"
 
 COPY requirements.txt /opt/app/requirements.txt
 WORKDIR /opt/app
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 COPY . /opt/app
