@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
     apt-get install -y libgl1-mesa-glx && \
     apt-get install libglib2.0-0 -y && \
-    apt-get clean \
+    apt-get clean
 
 # Optionally, set Python 3 as the default Python
 RUN ln -s /usr/bin/python3 /usr/bin/python
